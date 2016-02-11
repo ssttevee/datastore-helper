@@ -1,0 +1,38 @@
+{
+  "name": "ssttevee/datastore-helper",
+  "description": "A fluent, builder style approach to make google datastore easier to use in php",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Steve Lam",
+      "email": "stevyo99@yahoo.ca"
+    }
+  ],
+  "require": {
+    "google/apiclient": "~2.0"
+  },
+  "autoload": {
+    "files": [
+      "src/DatastoreHelper.php"
+    ],
+    "psr-4": {
+      "DatastoreHelper\\": "src/datastore-helper",
+      "DatastoreHelper\\AllocateIds\\": "src/datastore-helper/allocate-ids",
+      "DatastoreHelper\\Commit\\": "src/datastore-helper/commit",
+      "DatastoreHelper\\Commit\\Mutation\\": "src/datastore-helper/commit/mutation",
+      "DatastoreHelper\\Exception\\": "src/datastore-helper/exception",
+      "DatastoreHelper\\Interfaces\\": "src/datastore-helper/interface",
+      "DatastoreHelper\\Key\\": "src/datastore-helper/key",
+      "DatastoreHelper\\Key\\Path\\": "src/datastore-helper/key/path",
+      "DatastoreHelper\\Lookup\\": "src/datastore-helper/lookup",
+      "DatastoreHelper\\Query\\": "src/datastore-helper/query",
+      "DatastoreHelper\\Query\\Filter\\": "src/datastore-helper/query/filter",
+      "DatastoreHelper\\Query\\Filter\\Composite\\": "src/datastore-helper/query/filter/composite",
+      "DatastoreHelper\\Query\\Filter\\Property\\": "src/datastore-helper/query/filter/property",
+      "DatastoreHelper\\Query\\Order\\": "src/datastore-helper/query/order",
+      "DatastoreHelper\\Query\\Projection\\": "src/datastore-helper/query/projection",
+      "DatastoreHelper\\ReadOptions\\": "src/datastore-helper/read-options",
+      "DatastoreHelper\\Transaction\\": "src/datastore-helper/transaction"
+    }
+  }
+}
