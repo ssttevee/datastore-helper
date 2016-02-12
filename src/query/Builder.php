@@ -64,9 +64,9 @@ class Builder implements IBuilder
      *
      * @param \Google_Service_Datastore_KindExpression|string $kind
      */
-    public function __construct($kind)
+    public function __construct($kind = null)
     {
-        if (!is_null($kind)) $this->withKind($kind);
+        if ($kind === null) $this->withKind($kind);
     }
 
     /**
