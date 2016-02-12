@@ -14,7 +14,7 @@ abstract class BaseEntityModel
     public function __construct($entity = null)
     {
         if ($entity instanceof \Google_Service_Datastore_Entity) {
-            $this->key = $entity->getKey();
+            $this->setKey($entity->getKey());
             $this->extractProperties($entity->getProperties());
         }
     }

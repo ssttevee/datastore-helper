@@ -17,12 +17,24 @@ abstract class SimpleEntityModel extends BaseEntityModel
     protected $properties = [];
 
     /**
+     * @var Key\Builder $keyBuilder
+     */
+    protected $keyBuilder;
+
+    /**
      * SimpleEntityModel constructor.
      * @param \Google_Service_Datastore_Entity $entity
      */
     public function __construct($entity = null)
     {
-        $this->definedProperties = [];
+        $kind = get_class($this);
+
+        if ($pos = strrpos($kind, '\\') !== false)
+            $kind = substr($pos, $pos + 1);
+
+        $this->keyBuilder = (new Key\Builder)
+            ->withKind($kind);
+
         $this->defineProperties();
 
         parent::__construct($entity);
@@ -44,7 +56,6 @@ abstract class SimpleEntityModel extends BaseEntityModel
     /**
      * @param string $name
      * @param $value
-     * @return
      * @throws DatastoreHelperException
      */
     public function __set($name, $value)
@@ -53,6 +64,62 @@ abstract class SimpleEntityModel extends BaseEntityModel
             return $this->properties[$name] = $value;
 
         throw new DatastoreHelperException('Property `' . $name . '` was not defined.');
+    }
+
+    /**
+     * @return \Google_Service_Datastore_Key
+     */
+    public function getKey()
+    {
+        return $this->keyBuilder->build();
+    }
+
+    /**
+     * @param \Google_Service_Datastore_Key $key
+     */
+    public function setKey($key)
+    {
+        $this->keyBuilder = Key\Builder::fromKey($key);
+    }
+
+    /**
+     * @param \Google_Service_Datastore_Key $parentKey
+     */
+    public function setParentKey($parentKey)
+    {
+        $this->keyBuilder->withParent($parentKey);
+    }
+
+    /**
+     * @param string $kind
+     */
+    public function setKind($kind)
+    {
+        $this->keyBuilder->withKind($kind);
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setKeyId($id)
+    {
+        $this->keyBuilder->withId($id);
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setKeyName($name)
+    {
+        $this->keyBuilder->withName($name);
+    }
+
+    /**
+     * @param string $namespace
+     */
+    public function setNamespace($namespace)
+    {
+        $this->keyBuilder->withNamespace($namespace);
     }
 
     /**
@@ -98,7 +165,11 @@ abstract class SimpleEntityModel extends BaseEntityModel
             throw new DatastoreHelperException('No properties were defined in ' . self::class);
 
         $entity = new \Google_Service_Datastore_Entity();
-        $entity->setKey($this->getKey());
+
+        if ($this->getKey() === null)
+            $entity->setKey($this->getKey());
+        else
+            $entity->setKey($this->getKey());
 
         $properties = [];
         foreach ($this->definedProperties as $name => $spec) {
