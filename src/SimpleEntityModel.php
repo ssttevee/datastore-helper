@@ -7,7 +7,7 @@ use DatastoreHelper\Exception\DatastoreHelperException;
 abstract class SimpleEntityModel extends BaseEntityModel
 {
     /**
-     * @var Type[] $definedProperties
+     * @var array $definedProperties
      */
     private $definedProperties = [];
 
@@ -59,14 +59,18 @@ abstract class SimpleEntityModel extends BaseEntityModel
      * Define a property
      * @param string $name
      * @param Type|string $type
+     * @param boolean $indexed
      * @throws DatastoreHelperException
      */
-    public function defineProperty($name, $type)
+    public function defineProperty($name, $type, $indexed = false)
     {
         if (isset($this->definedProperties[$name]))
-            throw new DatastoreHelperException('Property `' . $name . '` already exists.');
+            throw new DatastoreHelperException('Property `' . $name . '` has already been defined.');
 
-        $this->definedProperties[$name] = Type::get($type);
+        $this->definedProperties[$name] = [
+            'type' => Type::get($type),
+            'indexed' => $indexed
+        ];
     }
 
     /**
@@ -78,9 +82,9 @@ abstract class SimpleEntityModel extends BaseEntityModel
         if (empty($this->definedProperties))
             throw new DatastoreHelperException('No properties were defined in ' . get_class($this));
 
-        foreach ($this->definedProperties as $name => $type) {
+        foreach ($this->definedProperties as $name => $spec) {
             if (isset($properties[$name]))
-                $this->$name = call_user_func([$properties[$name], $type->getFuncName('get')]);
+                $this->$name = call_user_func([$properties[$name], $spec['type']->getFuncName('get')]);
         }
     }
 
@@ -97,8 +101,8 @@ abstract class SimpleEntityModel extends BaseEntityModel
         $entity->setKey($this->getKey());
 
         $properties = [];
-        foreach ($this->definedProperties as $name => $type) {
-            $properties[$name] = \DatastoreHelper::newProperty($name, $type);
+        foreach ($this->definedProperties as $name => $spec) {
+            $properties[$name] = \DatastoreHelper::newProperty($name, $spec['type'], $spec['indexed']);
         }
 
         $entity->setProperties($properties);
