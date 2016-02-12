@@ -58,7 +58,7 @@ class DatastoreHelper
     /**
      * @param Google_Service_Datastore_Key|Google_Service_Datastore_Key[] $key_or_keys
      * @param array $options
-     * @return \Google_Service_Datastore_Key[]
+     * @return AllocateIds\Results
      */
     public function allocateKeys($key_or_keys, $options = [])
     {
@@ -93,7 +93,7 @@ class DatastoreHelper
      * @param string $transaction
      * @param bool $ignoreReadOnly
      * @param array $options
-     * @return Google_Service_Datastore_MutationResult
+     * @return Commit\Results
      */
     public function commitMutation($mutation, $transaction = null, $ignoreReadOnly = false, $options = [])
     {
