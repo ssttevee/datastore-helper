@@ -173,7 +173,7 @@ abstract class SimpleEntityModel extends BaseEntityModel
 
         $properties = [];
         foreach ($this->definedProperties as $name => $spec) {
-            $properties[$name] = \DatastoreHelper::newProperty($name, $spec['type'], $spec['indexed']);
+            $properties[$name] = \DatastoreHelper::newProperty($this->$name, $spec['type'], $spec['indexed']);
         }
 
         $entity->setProperties($properties);
