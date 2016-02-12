@@ -2,6 +2,7 @@
 
 namespace DatastoreHelper\Commit\Mutation;
 
+use DatastoreHelper\BaseEntityModel;
 use DatastoreHelper\Exception\MissingFieldsException;
 use DatastoreHelper\Interfaces\IBuilder;
 
@@ -68,13 +69,22 @@ class Builder implements IBuilder
         return $mutation;
     }
 
+    /**
+     * @param string $field
+     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[]|BaseEntityModel|BaseEntityModel[]|\Google_Service_Datastore_Key|\Google_Service_Datastore_Key[] $value_or_values
+     * @return $this
+     */
     protected function add($field, $value_or_values)
     {
         if (!is_array($value_or_values))
             $value_or_values = [$value_or_values];
 
-        foreach ($value_or_values as $value)
-            $this->$field[] = $value;
+        foreach ($value_or_values as $value) {
+            if ($value instanceof BaseEntityModel)
+                array_push($this->$field, $value->exportEntity());
+            else
+                array_push($this->$field, $value);
+        }
 
         return $this;
     }
@@ -88,7 +98,7 @@ class Builder implements IBuilder
     }
 
     /**
-     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[] $entity_or_entities
+     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[]|BaseEntityModel|BaseEntityModel[] $entity_or_entities
      * @return $this
      */
     public function withUpsert($entity_or_entities)
@@ -105,7 +115,7 @@ class Builder implements IBuilder
     }
 
     /**
-     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[] $entity_or_entities
+     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[]|BaseEntityModel|BaseEntityModel[] $entity_or_entities
      * @return $this
      */
     public function withUpdate($entity_or_entities)
@@ -122,7 +132,7 @@ class Builder implements IBuilder
     }
 
     /**
-     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[] $entity_or_entities
+     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[]|BaseEntityModel|BaseEntityModel[] $entity_or_entities
      * @return $this
      */
     public function withInsert($entity_or_entities)
@@ -139,7 +149,7 @@ class Builder implements IBuilder
     }
 
     /**
-     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[] $entity_or_entities
+     * @param \Google_Service_Datastore_Entity|\Google_Service_Datastore_Entity[]|BaseEntityModel|BaseEntityModel[] $entity_or_entities
      * @return $this
      */
     public function withInsertAutoId($entity_or_entities)
