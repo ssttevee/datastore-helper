@@ -6,7 +6,7 @@ use DatastoreHelper\Exception\MissingFieldsException;
 use DatastoreHelper\Exception\ParameterException;
 use DatastoreHelper\Interfaces\IBuilder;
 
-class Builder implements IBuilder
+class Builder extends Path\Builder implements IBuilder
 {
     /**
      * @var string $datasetId
@@ -19,9 +19,9 @@ class Builder implements IBuilder
     protected $namespace = null;
 
     /**
-     * @var \Google_Service_Datastore_KeyPathElement[] $path
+     * @var \Google_Service_Datastore_KeyPathElement[] $parent
      */
-    protected $path = [];
+    protected $parent = [];
 
     /**
      * Builder constructor.
@@ -73,29 +73,41 @@ class Builder implements IBuilder
         return $this;
     }
 
-    public function getPath()
+    /**
+     * @return \Google_Service_Datastore_KeyPathElement[]
+     */
+    public function getParentPath()
     {
-        return $this->path;
+        return $this->parent;
     }
 
     /**
-     * @param Path\Builder|Path\Builder[]|\Google_Service_Datastore_KeyPathElement|\Google_Service_Datastore_KeyPathElement[] $path_or_paths
+     * @return \Google_Service_Datastore_KeyPathElement[]
+     */
+    public function getPath()
+    {
+        $path = $this->parent;
+        $path[] = parent::build();
+        return $path;
+    }
+
+    /**
+     * @param \Google_Service_Datastore_Key|\Google_Service_Datastore_KeyPathElement|Path\Builder|Builder $parentKey_or_parentPath
      * @return $this
      * @throws ParameterException
      */
-    public function withPath($path_or_paths)
+    public function withParent($parentKey_or_parentPath)
     {
-        if (!is_array($path_or_paths))
-            $path_or_paths = [$path_or_paths];
-
-        foreach ($path_or_paths as $path) {
-            if ($path instanceof Path\Builder)
-                $this->path[] = $path->build();
-            else if ($path instanceof \Google_Service_Datastore_KeyPathElement)
-                $this->path[] = $path;
-            else
-                throw new ParameterException(__METHOD__, [Path\Builder::class, \Google_Service_Datastore_KeyPathElement::class]);
-        }
+        if ($parentKey_or_parentPath instanceof Builder)
+            $this->parent = $parentKey_or_parentPath->getPath();
+        else if ($parentKey_or_parentPath instanceof Path\Builder)
+            $this->parent = $parentKey_or_parentPath->build();
+        else if ($parentKey_or_parentPath instanceof \Google_Service_Datastore_Key)
+            $this->parent = $parentKey_or_parentPath->getPath();
+        else if ($parentKey_or_parentPath instanceof \Google_Service_Datastore_KeyPathElement)
+            $this->parent = $parentKey_or_parentPath;
+        else
+            throw new ParameterException(__METHOD__, [\Google_Service_Datastore_Key::class, \Google_Service_Datastore_KeyPathElement::class, Path\Builder::class, Builder::class ]);
 
         return $this;
     }
@@ -106,21 +118,32 @@ class Builder implements IBuilder
      */
     public function build()
     {
-        $missing = [];
-        if ($this->datasetId === null) $missing[] = '$datasetId';
-        if (empty($this->path)) $missing[] = '$path';
-
-        if (!empty($missing))
-            throw new MissingFieldsException(self::class, $missing);
-
         $partitionId = new \Google_Service_Datastore_PartitionId;
         $partitionId->setDatasetId($this->datasetId);
         $partitionId->setNamespace($this->namespace);
 
         $key = new \Google_Service_Datastore_Key;
         $key->setPartitionId($partitionId);
-        $key->setPath($this->path);
+        $key->setPath($this->getPath());
 
         return $key;
+    }
+
+    /**
+     * @param \Google_Service_Datastore_Key $key
+     * @return Builder
+     */
+    public static function fromKey($key)
+    {
+        $keyBuilder = new self;
+        $keyBuilder->parent = $key->getPath();
+
+        /** @var \Google_Service_Datastore_KeyPathElement $latestPath */
+        $latestPath = array_pop($keyBuilder->parent);
+        $keyBuilder->kind = $latestPath->getKind();
+        $keyBuilder->id = $latestPath->getId();
+        $keyBuilder->name = $latestPath->getName();
+
+        return $keyBuilder;
     }
 }

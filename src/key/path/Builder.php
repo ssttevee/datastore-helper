@@ -88,7 +88,9 @@ class Builder implements IBuilder
     {
         $missing = [];
         if ($this->kind === null) $missing[] = '$kind';
-        if ($this->id === null && $this->name === null) $missing[] = '$id or $name';
+
+        // Incomplete paths don't actually need a id or name
+        // if ($this->id === null && $this->name === null) $missing[] = '$id or $name';
 
         if (!empty($missing))
             throw new MissingFieldsException(self::class, $missing);
