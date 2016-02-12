@@ -1,6 +1,7 @@
 <?php
 
 use DatastoreHelper\AllocateIds;
+use DatastoreHelper\BaseEntityModel;
 use DatastoreHelper\Commit;
 use DatastoreHelper\Commit\Mutation;
 use DatastoreHelper\Key;
@@ -185,6 +186,12 @@ class DatastoreHelper
     public static function newProperty($value, $type, $indexed = false)
     {
         $property = new \Google_Service_Datastore_Property;
+
+        if ($value instanceof \DateTime)
+            $value = $value->format(DateTime::ATOM);
+        else if ($value instanceof BaseEntityModel)
+            $value = $value->exportEntity();
+
         call_user_func([$property, Type::get($type)->getFuncName('set')], $value);
         if ($indexed === true) $property->setIndexed($indexed);
         return $property;
