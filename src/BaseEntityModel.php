@@ -36,7 +36,7 @@ abstract class BaseEntityModel
     }
 
     /**
-     * @param array $properties
+     * @param \Google_Service_Datastore_Property[] $properties
      * @return void
      */
     abstract protected function extractProperties($properties);
