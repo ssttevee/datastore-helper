@@ -129,7 +129,7 @@ abstract class SimpleEntityModel extends BaseEntityModel
      * @param boolean $indexed
      * @throws DatastoreHelperException
      */
-    public function defineProperty($name, $type, $indexed = false)
+    public function defineProperty($name, $type, $indexed = true)
     {
         if (isset($this->definedProperties[$name]))
             throw new DatastoreHelperException('Property `' . $name . '` has already been defined.');

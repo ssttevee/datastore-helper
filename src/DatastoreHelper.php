@@ -183,7 +183,7 @@ class DatastoreHelper
      * @param boolean $indexed
      * @return \Google_Service_Datastore_Property
      */
-    public static function newProperty($value, $type, $indexed = false)
+    public static function newProperty($value, $type, $indexed = true)
     {
         $property = new \Google_Service_Datastore_Property;
 
